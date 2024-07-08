@@ -9,7 +9,7 @@
         "dest": "/api/index.php"
     }],
     "env": {
-        "APP_ENV": "production",
+        "APP_ENV": "local",
         "ASSET_URL": "https://teleport-be.vercel.app",
         "APP_DEBUG": "true",
         "APP_URL": "https://teleport-be.vercel.app",
