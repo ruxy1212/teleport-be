@@ -10,16 +10,16 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::prefix('auth')->middleware(['api'])->group(function(){
-    Route::post('register', [AuthController::class, 'register']);
-    Route::post('login', [AuthController::class, 'login']);    
+    Route::post('register', [AuthController::class, 'register'])->name('api.register');
+    Route::post('login', [AuthController::class, 'login'])->name('api.login');    
 });
 
 Route::middleware(['api', 'check.for.jwt'])->group(function(){
-    Route::get('users/{userId}', [AuthController::class, 'show']);
-    Route::get('organisations', [OrganisationController::class, 'index']);
-    Route::get('organisations/{orgId}', [OrganisationController::class, 'show']);
-    Route::post('organisations', [OrganisationController::class, 'store']);
-    Route::post('organisations/{orgId}/users', [OrganisationController::class, 'addUser']);
+    Route::get('users/{userId}', [AuthController::class, 'show'])->name('api.users.show');
+    Route::get('organisations', [OrganisationController::class, 'index'])->name('api.organisations');
+    Route::get('organisations/{orgId}', [OrganisationController::class, 'show'])->name('api.organisations.show');
+    Route::post('organisations', [OrganisationController::class, 'store'])->name('api.organisations.store');
+    Route::post('organisations/{orgId}/users', [OrganisationController::class, 'addUser'])->name('api.organisations.addUser');
 });
 
 // Route::middleware(['jwt.auth'])->group(function () {

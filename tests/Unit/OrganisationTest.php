@@ -2,40 +2,28 @@
 
 namespace Tests\Unit;
 
-use PHPUnit\Framework\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\AuthTest;
 use App\Models\User;
-use App\Models\Organisation;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
-class OrganisationTest extends TestCase
+class OrganisationTest extends AuthTest
 {
     use RefreshDatabase;
 
-    /**
-     * Test users can only see organisations they have access to.
-     */
-    public function test_user_cannot_see_organisations_they_dont_have_access_to()
+    public function test_user_cannot_access_other_organisation_data()
     {
-        // Create two users
         $user1 = User::factory()->create();
         $user2 = User::factory()->create();
+        $organisation2 = $user2->createOrganisation();
 
-        // Create organisations
-        $organisation1 = Organisation::factory()->create();
-        $organisation2 = Organisation::factory()->create();
+        $this->actingAs($user1);
+        $token = JWTAuth::fromUser($user1);
 
-        // Assign user1 to organisation1
-        $user1->organisations()->attach($organisation1->orgId);
+        // Attempt to access user2's default organisation
+        $response = $this->withHeaders(['Authorization' => "Bearer $token"])->getJson(route('api.organisations.show', (string)$organisation2->orgId));
 
-        // Assign user2 to organisation2
-        $user2->organisations()->attach($organisation2->orgId);
-
-        // Acting as user1, attempt to fetch organisations
-        $response = $this->actingAs($user1, 'api')->getJson('/api/organisations');
-
-        // Assert user1 can see organisation1 but not organisation2
-        $response->assertStatus(200);
-        $response->assertJsonFragment(['orgId' => $organisation1->orgId]);
-        $response->assertJsonMissing(['orgId' => $organisation2->orgId]);
+        // Assert that the response status is 403 Forbidden
+        $response->assertStatus(403);
     }
 }

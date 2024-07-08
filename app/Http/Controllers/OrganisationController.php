@@ -23,15 +23,18 @@ class OrganisationController extends Controller
     }
 
     public function show($orgId)
-    {
+    { 
         $user = auth('api')->user();
-        $organisation = $user->organisationsPublicColumns()->where('orgId', $orgId)->first();
-
-        if (!$organisation) {
+        if(Organisation::find($orgId)){
+            $organisation = $user->organisationsPublicColumns()->where('orgId', $orgId)->first();
+            if (!$organisation) {
+                return ResponseHelper::response('Unauthorized', "You don't have access to view this organisation", null, 403);
+            }
+            unset($organisation['pivot']);
+            return ResponseHelper::response('success', "Retrieved organisation successfully", $organisation, 200);
+        }else{
             return ResponseHelper::response('Not found', "Organisation not found", null, 404);
         }
-        unset($organisation['pivot']);
-        return ResponseHelper::response('success', "Retrieved organisation successfully", $organisation, 200);
     }
 
     public function store(Request $request)
@@ -87,6 +90,6 @@ class OrganisationController extends Controller
         }
 
         $organisation->users()->attach((string)$request->userId);
-        return ResponseHelper::response('success', "User added to organisation", null, 200);
+        return ResponseHelper::response('success', "User added to organisation successfully", null, 200);
     }
 }
