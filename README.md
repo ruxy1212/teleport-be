@@ -1,66 +1,90 @@
+# HNG Backend Task 2
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## User Authentication & Organisation
 
-## About Laravel
+Using your most comfortable backend framework of your choice, adhere to the following acceptance:
+- Connect your application to a Postgres database server. (optional: you can choose to use any ORM of your choice if you want or not).
+- Create a User model using the properties below
+> NB: user id and email must be unique
+```
+{
+	"userId": "string" // must be unique
+	"firstName": "string", // must not be null
+	"lastName": "string" // must not be null
+	"email": "string" // must be unique and must not be null
+	"password": "string" // must not be null
+	"phone": "string"
+}
+```
+- Provide validation for all fields. When there’s a validation error, return status code 422 with payload:
+```
+{
+  "errors": [
+    {
+      "field": "string",
+      "message": "string"
+    },
+  ]
+}
+```
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+**Using the schema above, implement user authentication**
+*User Registration:*
+- Implement an endpoint for user registration
+- Hash the user’s password before storing them in the database.
+- Successful response: Return the payload with a 201 success status code.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+*User Login*
+- Implement an endpoint for user Login.
+- Use the JWT token returned to access PROTECTED endpoints.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+*Organisation*
+- A user can belong to one or more organisations
+- An organisation can contain one or more users.
+- On every registration, an organisation must be created.
+- The name property of the organisation takes the user’s firstName and appends “Organisation” to it. For example: user’s first name is John , organisation name becomes "John's Organisation" because firstName = "John" .
+- Logged in users can access organisations they belong to and organisations they created.
+- Create an organisation model with the properties below.
+- Organisation Model:
+```
+{
+	"orgId": "string", // Unique
+	"name": "string", // Required and cannot be null
+	"description": "string",
+}
+```
+*Endpoints:*
+- `[POST] /auth/register` Registers a users and creates a default organisation Register request body:
+- `[POST] /auth/login`: logs in a user. When you log in, you can select an organisation to interact with
+- `[GET] /api/users/:id`: A user gets their own record or user record in organisations they belong to or created [PROTECTED].
+- `[GET] /api/organisations`: gets all your organisations the user belongs to or created. If a user is logged in properly, they can get all their organisations. They should not get another user’s organisation [PROTECTED].
+- `[GET] /api/organisations/:orgId`: the logged in user gets a single organisation record [PROTECTED]
+Successful response: Return the payload below with a `200` success status code.
+- `[POST] /api/organisations`: a user can create their new organisation [PROTECTED].
+- `[POST] /api/organisations/:orgId/users`: adds a user to a particular organisation
 
-## Learning Laravel
+## Testing
+### Unit Testing
+Write appropriate unit tests to cover:
+1. Token generation - Ensure token expires at the correct time and correct user details is found in token.
+1. Organisation - Ensure users can’t see data from organisations they don’t have access to.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### End-to-End Test
+**Test Scenarios:**
+1. It Should Register User Successfully with Default Organisation:
+- Ensure a user is registered successfully when no organisation details are provided.
+- Verify the default organisation name is correctly generated (e.g., "John's Organisation" for a user with the first name "John").
+- Check that the response contains the expected user details and access token.
+1. It Should Log the user in successfully:
+- Ensure a user is logged in successfully when a valid credential is provided and fails otherwise.
+- Check that the response contains the expected user details and access token.
+1. It Should Fail If Required Fields Are Missing:
+- Test cases for each required field (firstName, lastName, email, password) missing.
+- Verify the response contains a status code of 422 and appropriate error messages.
+1. It Should Fail if there’s Duplicate Email or UserID
+- Attempt to register two users with the same email.
+- Verify the response contains a status code of 422 and appropriate error messages.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
-
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-## Laravel Sponsors
-
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
-
-### Premium Partners
-
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Live Link
+The API is hosted on Vercel, base URL is [https://teleport-be.vercel.app](https://teleport-be.vercel.app)
