@@ -22,5 +22,5 @@
  
     # Send Requests To API Front Controller...
     # RewriteRule ^api/.*$ /api/api/index.php [L]
-    RewriteRule ^api/(.*)$ /api/index.php [L]
+    RewriteRule ^ index.php [L]
 </IfModule>
