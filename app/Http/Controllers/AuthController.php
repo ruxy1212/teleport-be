@@ -42,7 +42,7 @@ class AuthController extends Controller
             return ResponseHelper::response('success', "Registration successful", $data, 201);
         }catch (\Exception $e) {
             DB::rollBack();
-            return ResponseHelper::response('Bad request', "Registration unsuccessful", null, 400);
+            return ResponseHelper::response('Bad request', "Registration unsuccessful".$e, null, 400);
         }
     }
 
