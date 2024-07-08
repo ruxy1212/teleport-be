@@ -9,7 +9,6 @@ $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
 $response = $kernel->handle(
     $request = Illuminate\Http\Request::capture()
 );
-// g=
 $response->send();
 $kernel->terminate($request, $response);
 // Load the Laravel application
