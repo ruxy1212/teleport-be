@@ -25,5 +25,5 @@
         "LOG_CHANNEL": "stderr",
         "SESSION_DRIVER": "cookie"
     },
-    "outputDirectory": "api"
+    "outputDirectory": "public"
 }
